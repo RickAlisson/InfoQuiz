@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz de Informática</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            border: none;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #170270, #573EB4);
+            color: #343a40;
+            text-align: center;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        #quiz {
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 {
+
+            margin-bottom: 20px;
+        }
+
+        .input-container {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        input, select {
+            width: 65%;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        label {
+            width: 30%;
+            font-size: 16px;
+            text-align: left;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 12px 25px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .question {
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .option {
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .correct {
+            background-color: #c3e6cb;
+        }
+
+        .incorrect {
+            background-color: #f5c6cb;
+        }
+
+        .result {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        #result-table {
+            display: none;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #343a40;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        input[type = "radio"] {
+            width: 30px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="start-screen">
+        <h1>Quiz de Informática</h1>
+        <div class="input-container">
+            <label for="user-name">Nome:</label>
+            <input type="text" id="user-name" placeholder="Seu nome aqui">
+        </div>
+        <div class="input-container">
+            <label for="difficulty">Dificuldade:</label>
+            <select id="difficulty">
+                <option value="">Selecione...</option>
+                <option value="easy">Fácil</option>
+                <option value="medium">Médio</option>
+                <option value="hard">Difícil</option>
+            </select>
+        </div>
+        <button onclick="startQuiz()">Iniciar Quiz</button>
+    </div>
+
+    <div id="quiz-screen" style="display: none;">
+        <div id="quiz">
+
+        </div>
+        <div>
+            <button id="next" onclick="nextQuestion()" style="display:none;">Próxima Pergunta</button>
+            <button id="submit" onclick="submitQuiz()" style="display:none;">Enviar Respostas</button>
+            <button id="restart" onclick="restartQuiz()" style="display:none;">Voltar ao Início</button>
+        </div>
+        <div id="result" class="result"></div>
+
+        <div id="result-table">
+            <h2>Ranking</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Pontuação</th>
+                    </tr>
+                </thead>
+                <tbody id="ranking-body">
+                    <!-- Ranking será inserido aqui -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+       const questions = {
+
+        easy: [
+
+            {
+                question: "Qual é a linguagem de programação mais usada para desenvolvimento web?",
+                options: [["Python"], ["Java"], ["JavaScript"], ["C#"]],
+                answer: "JavaScript"
+            },
+            {
+                question: "O que significa RAM?",
+                options: [["Read Access Memory"], ["Random Access Memory"], ["Rapid Access Memory"], ["None"]],
+                answer: "Random Access Memory"
+            },
+            {
+                question: "Qual é o sistema operacional mais utilizado?",
+                options: [["Linux"], ["Windows"], ["macOS"], ["Android"]],
+                answer: "Windows"
+            },
+            {
+                question: "O que é um navegador?",
+                options: [["Um tipo de software para acessar a internet"], ["Um tipo de vírus"], ["Um sistema operacional"], ["Um hardware"]],
+                answer: "Um tipo de software para acessar a internet"
+            },
+            {
+                question: "O que faz a tag h1 em HTML?",
+                options: [["Cria um parágrafo."], ["Cria um cabeçalho de nível 1 (título principal)."], ["Insere uma imagem."], ["Adiciona uma lista."]],
+                answer: "Cria um cabeçalho de nível 1 (título principal)."
+            }
+        ],
+        medium: [
+            {
+                question: "O que é um servidor?",
+                options: [["Um tipo de computador"], ["Um sistema operacional"], ["Um software de segurança"], ["Uma rede de computadores"]],
+                answer: "Um tipo de computador"
+            },
+            {
+                question: "O que significa HTML?",
+                options: [["HyperText Markup Language"], ["HighText Markup Language"], ["HyperText Multi Language"], ["HighText Multi Language"]],
+                answer: "HyperText Markup Language"
+            },
+            {
+                question: "Qual é a principal função de um firewall?",
+                options: [["Bloquear vírus"], ["Proteger redes"], ["Acelerar internet"], ["Armazenar dados"]],
+                answer: "Proteger redes"
+            },
+            {
+                question: "O que é phishing?",
+                options: [["Um tipo de malware"], ["Uma técnica de fraude"], ["Um sistema de segurança"], ["Um tipo de servidor"]],
+                answer: "Uma técnica de fraude"
+            },
+            {
+                question: "Qual é a função do sistema operacional?",
+                options: [["Executar aplicações"], ["Conectar à internet"], ["Proteger o computador"], ["Armazenar dados"]],
+                answer: "Executar aplicações"
+            },
+            {
+                question: "Qual é o nome do primeiro computador eletrônico programável?",
+                options: [["ENIAC"], ["UNIVAC"], ["Colossus"], ["Z3"]],
+                answer: "ENIAC"
+            }
+        ],
+        hard: [
+            {
+                question: "Qual é a principal diferença entre um algoritmo de busca em profundidade (DFS) e um algoritmo de busca em largura (BFS)?",
+                options: [["A profundidade do gráfico"], ["A ordem em que os nós são visitados"], ["O espaço de memória utilizado"], ["A complexidade temporal"]],
+                answer: "A ordem em que os nós são visitados"
+            },
+            {
+                question: "O que é a técnica de 'sharding' em bancos de dados?",
+                options: [["Um método de backup de dados"], ["Uma forma de criptografia"], ["A divisão de um banco de dados em partes menores"], ["Um tipo de consulta"]],
+                answer: "A divisão de um banco de dados em partes menores"
+            },
+            {
+                question: "Em redes de computadores, o que é um protocolo de comunicação?",
+                options: [["Um padrão para a troca de dados"], ["Um tipo de software antivírus"], ["Um dispositivo de rede"], ["Uma técnica de compressão de dados"]],
+                answer: "Um padrão para a troca de dados"
+            },
+            {
+                question: "O que é a computação quântica?",
+                options: [["Um tipo de computação clássica"], ["Uma técnica de armazenamento em nuvem"], ["Um sistema operacional avançado"], ["Um modelo que utiliza qubits para processamento de informações"]],
+                answer: "Um modelo que utiliza qubits para processamento de informações"
+            },
+            {
+                question: "O que é um ataque DDoS?",
+                options: [["Um ataque que interrompe a conexão de rede"], ["Um tipo de malware que se espalha rapidamente"], ["Um ataque que sobrecarrega um servidor com tráfego"], ["Um método de phishing"]],
+                answer: "Um ataque que sobrecarrega um servidor com tráfego"
+            },
+            {
+                question: "Qual é a complexidade temporal do algoritmo de ordenação QuickSort no pior caso?",
+                options: [["O(n^2)"], ["O(n log n)"], ["O(log n)"], ["O(n)"]],
+                answer: "O(n^2)"
+            },
+            {
+                question: "O que é a virtualização?",
+                options: [["Criar uma réplica física de um servidor"], ["Executar múltiplos sistemas operacionais em um único hardware"], ["Um método de criptografia de dados"], ["Um tipo de armazenamento em nuvem"]],
+                answer: "Executar múltiplos sistemas operacionais em um único hardware"
+            }
+        ]
+    };
+    let currentQuestionIndex = 0;
+    let selectedAnswers = [];
+    let currentPhase = '';
+    let shuffledQuestions = [];
+    let userName = '';
+
+    function startQuiz() {
+    userName = document.getElementById("user-name").value;
+    const difficulty = document.getElementById("difficulty").value;
+
+    localStorage.clear()
+    console.log("Armazenamento limpo")
+    if (userName === "") {
+        alert("Por favor, digite seu nome.");
+        return;
+    }
+    if (difficulty) {
+        currentPhase = difficulty;
+        currentQuestionIndex = 0;
+        selectedAnswers = [];
+
+        // Verificação se o conjunto de perguntas existe para a dificuldade selecionada
+        if (!questions[currentPhase]) {
+            alert("Erro ao carregar as perguntas. Verifique se as perguntas para essa dificuldade existem.");
+            return;
+        }
+
+        shuffledQuestions = shuffleArray(questions[currentPhase]); // Certifique-se que o valor existe
+        document.getElementById("start-screen").style.display = "none";
+        document.getElementById("quiz-screen").style.display = "block";
+        loadQuestion();
+    } else {
+        alert("Por favor, selecione uma dificuldade.");
+    }
+}
+
+    function shuffleArray(array) {
+        return array.sort(() => Math.random() - 0.5);
+    }
+
+    function loadQuestion() {
+        const questionData = shuffledQuestions[currentQuestionIndex];
+        const quizContainer = document.getElementById("quiz");
+        quizContainer.innerHTML = `<div><div class="question">${questionData.question}</div></div>`;
+        questionData.options.forEach(option => {
+            quizContainer.innerHTML += `
+                <label class="option">
+                    <input type="radio" name="question" value="${option[0]}"> ${option[0]}
+                </label>`;
+        });
+        document.getElementById("next").style.display = "inline";
+        document.getElementById("submit").style.display = "none";
+    }
+
+    function nextQuestion() {
+        const selected = document.querySelector(`input[name="question"]:checked`);
+        if (!selected) {
+            alert("Por favor, selecione uma resposta.");
+            return;
+        }
+
+        selectedAnswers.push({
+            answer: selected.value,
+            isCorrect: selected.value === shuffledQuestions[currentQuestionIndex].answer
+        });
+
+        currentQuestionIndex++;
+
+        if (currentQuestionIndex < shuffledQuestions.length) {
+            loadQuestion();
+        } else {
+            document.getElementById("next").style.display = "none";
+            document.getElementById("submit").style.display = "inline";
+        }
+    }
+
+    function submitQuiz() {
+        let score = selectedAnswers.filter(ans => ans.isCorrect).length * 10;
+        saveScore(userName, score);
+        displayRanking();
+
+        document.getElementById("result").innerText = `Sua pontuação: ${score}`;
+        document.getElementById("restart").style.display = "inline";
+    }
+
+    function saveScore(name, score) {
+        let ranking = JSON.parse(localStorage.getItem("ranking")) || [];
+        ranking.push({ name, score });
+        ranking.sort((a, b) => b.score - a.score);
+        localStorage.setItem("ranking", JSON.stringify(ranking));
+    }
+
+    function displayRanking() {
+        let ranking = JSON.parse(localStorage.getItem("ranking")) || [];
+        const rankingBody = document.getElementById("ranking-body");
+        rankingBody.innerHTML = "";
+        ranking.forEach((entry, index) => {
+            rankingBody.innerHTML += `
+                <tr>
+                    <td>${index + 1}. ${entry.name}</td>
+                    <td>${entry.score}</td>
+                </tr>`;
+        });
+        document.getElementById("result-table").style.display = "block";
+    }
+
+    function restartQuiz() {
+        document.getElementById("start-screen").style.display = "block";
+        document.getElementById("quiz-screen").style.display = "none";
+        document.getElementById("result").innerText = "";
+        currentQuestionIndex = 0;
+        selectedAnswers = [];
+        document.getElementById("result-table").style.display = "none";
+    }
+</script>
+
+</body>
+</html>
